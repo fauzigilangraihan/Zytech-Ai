@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZyyTech AI</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gemini: {
+                            bg: '#ffffff', sidebar: '#f0f4f9', input: '#f0f4f9',
+                            darkBg: '#131314', darkSidebar: '#1e1f20', darkInput: '#1e1f20',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #5f6368; }
+        ::-webkit-scrollbar-thumb:hover { background: #bdc1c6; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .mic-active { color: #ef4444 !important; animation: pulse 1.5s infinite; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; display: inline-flex; align-items: center; justify-content: center; }
+        .prose pre { background-color: #1e1e1e !important; border-radius: 12px; padding: 16px; margin-top: 12px; margin-bottom: 12px; }
+        .prose code { color: inherit !important; font-family: 'Courier New', Courier, monospace; }
+        .hljs { background: transparent !important; padding: 0; }
+    </style>
+</head>
+<body class="bg-gemini-bg dark:bg-gemini-darkBg text-gray-800 dark:text-gray-200 h-screen flex font-sans overflow-hidden transition-colors duration-300">
+
+    <div id="auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center transition-opacity opacity-0">
+        <div class="bg-white dark:bg-[#1e1f20] w-[90%] max-w-md rounded-2xl shadow-2xl p-6 md:p-8 transform transition-transform scale-95 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="auth-title" class="text-2xl font-medium text-gray-800 dark:text-gray-200">Login ke ZyyTech</h2>
+                <button onclick="closeAuthModal()" class="text-gray-500 hover:text-gray-800 dark:hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" id="auth-email" required class="w-full bg-gray-50 dark:bg-[#131314] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-gray-50 dark:bg-[#131314] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                
+                <input type="hidden" id="auth-mode" value="login">
+                <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors">Masuk</button>
+            </form>
+            
+            <div class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                <span id="auth-switch-text">Belum punya akun?</span> 
+                <button type="button" onclick="switchAuthMode()" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline" id="auth-switch-btn">Daftar sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/20 dark:bg-black/40 z-30 hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-[280px] bg-gemini-sidebar dark:bg-gemini-darkSidebar flex flex-col h-full z-40 transition-transform duration-300 ease-in-out transform -translate-x-full md:relative md:translate-x-0">
+        <div class="p-4 flex flex-col gap-4">
+            <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 transition-colors self-start md:hidden">
+                <span class="material-symbols-outlined text-[24px]">menu</span>
+            </button>
+
+            <button onclick="chatBaru()" class="flex items-center gap-3 bg-white dark:bg-[#2a2b2c] hover:bg-gray-50 dark:hover:bg-[#333435] border border-transparent shadow-sm px-4 py-3 rounded-[16px] text-sm font-medium transition-all self-start mt-2 md:mt-0">
+                <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">add</span>
+                <span class="text-gray-700 dark:text-gray-200">Percakapan baru</span>
+            </button>
+
+            <div class="relative mt-2">
+                <span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[18px]">search</span>
+                <input type="text" id="search-history" placeholder="Cari obrolan..." onkeyup="searchSidebarSessions()" class="w-full bg-white dark:bg-[#2a2b2c] border-none rounded-full py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 text-gray-800 dark:text-gray-200">
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto px-3 pb-4" id="history-list">
+            <div class="text-[12px] font-medium text-gray-500 dark:text-gray-400 mb-2 px-3 pt-4">Terkini</div>
+            <div id="empty-history" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 italic">Belum ada percakapan</div>
+        </div>
+
+        <div class="p-3">
+            <button id="sidebar-login-btn" onclick="openAuthModal()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                <span id="sidebar-user-text">Login ke Akun</span>
+            </button>
+            <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">
+                <span id="theme-icon" class="material-symbols-outlined text-[20px]">dark_mode</span> Ganti Tema
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full relative w-full overflow-hidden">
+        
+        <header class="py-3 px-4 md:px-6 flex justify-between items-center z-10 shrink-0 absolute top-0 left-0 right-0 bg-gemini-bg/80 dark:bg-gemini-darkBg/80 backdrop-blur-md">
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSidebar()" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">menu</span>
+                </button>
+                <span class="text-xl font-medium text-gray-600 dark:text-gray-300 tracking-wide select-none hidden sm:inline">ZyyTech</span>
+                <select id="model-selector" class="bg-transparent text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer outline-none ml-2">
+                    <option value="gemini-flash-lite-latest">Flash</option>
+                    <option value="gemini-2.5-flash">Pro</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="exportChat()" title="Download Chat (.txt)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">download</span>
+                </button>
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium border border-green-100 dark:border-green-800/50">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Online
+                </div>
+                <button id="header-avatar" class="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300 font-bold ml-2">
+                    G
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-4 md:px-8 pb-32 pt-20 scroll-smooth flex flex-col" id="chat-box">
+            <div id="welcome-screen" class="flex-1 flex flex-col items-center justify-center text-center max-w-2xl mx-auto opacity-100 transition-opacity duration-500">
+                <img src="static/logo.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=Zyy+Tech&background=e2e8f0&color=475569&rounded=true'" alt="Logo" class="w-16 h-16 rounded-full mb-6 shadow-sm">
+                <h1 id="welcome-title" class="text-3xl md:text-4xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 mb-2">Halo, Selamat Datang</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-lg">Bagaimana saya bisa membantu Anda hari ini?</p>
+            </div>
+        </main>
+
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gemini-bg dark:from-gemini-darkBg via-gemini-bg/90 dark:via-gemini-darkBg/90 to-transparent pt-8 pb-4 md:pb-6 px-4 md:px-8 z-20">
+            <div class="max-w-3xl mx-auto w-full relative">
+                
+                <div id="file-preview-container" class="absolute -top-12 left-4 hidden bg-white dark:bg-[#2a2b2c] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 shadow-sm">
+                    <span class="material-symbols-outlined text-indigo-500 text-[18px]">draft</span>
+                    <span id="file-name-display" class="text-xs font-medium text-gray-600 dark:text-gray-300 truncate max-w-[150px]">file.png</span>
+                    <button onclick="hapusFile()" class="text-gray-400 hover:text-red-500 flex items-center"><span class="material-symbols-outlined text-[16px]">close</span></button>
+                </div>
+
+                <div class="bg-gemini-input dark:bg-gemini-darkInput rounded-[32px] p-2 flex items-end gap-2 transition-all border border-transparent focus-within:bg-white dark:focus-within:bg-[#2a2b2c] focus-within:shadow-md dark:focus-within:border-gray-700">
+                    <input type="file" id="file-upload" class="hidden" onchange="handleFileSelect(event)">
+                    <label for="file-upload" class="w-12 h-12 flex items-center justify-center shrink-0 text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer rounded-full mb-0.5">
+                        <span class="material-symbols-outlined text-[24px]">add</span>
+                    </label>
+
+                    <textarea id="user-input" rows="1"
+                        class="flex-1 bg-transparent border-none text-gray-800 dark:text-gray-100 py-3.5 focus:outline-none focus:ring-0 placeholder-gray-500 dark:placeholder-gray-400 resize-none overflow-y-auto max-h-[200px] text-[15px] leading-relaxed" 
+                        placeholder="Tanya ZyyTech atau tekan mic..."
+                        oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                    
+                    <div class="flex items-center shrink-0 mb-0.5">
+                        <button id="mic-btn" onclick="toggleDictation()" class="w-12 h-12 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors">
+                            <span class="material-symbols-outlined text-[24px]">mic</span>
+                        </button>
+                        <button onclick="sendMessage()" class="w-12 h-12 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">send</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center mt-3 text-[11px] text-gray-500 dark:text-gray-500">ZyyTech AI dapat membuat kesalahan. Periksa kembali info penting.</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const welcomeScreen = document.getElementById('welcome-screen');
+let fileTerpilih = null;
+let currentSessionId = null;
+
+// ================= FITUR VOICE RECOGNITION (DIKTE) =================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'id-ID'; 
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = function() {
+        isListening = true;
+        document.getElementById('mic-btn').classList.add('mic-active');
+        userInput.placeholder = "Mendengarkan...";
+    };
+    recognition.onresult = function(event) {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+            else interimTranscript += event.results[i][0].transcript;
+        }
+        userInput.value = finalTranscript + interimTranscript;
+        autoResize(userInput);
+    };
+    recognition.onerror = function() { stopDictation(); };
+    recognition.onend = function() { stopDictation(); };
+}
+function toggleDictation() {
+    if (!recognition) { alert("Browser Anda tidak mendukung fitur suara."); return; }
+    if (isListening) stopDictation(); else recognition.start();
+}
+function stopDictation() {
+    if (recognition) recognition.stop();
+    isListening = false;
+    document.getElementById('mic-btn').classList.remove('mic-active');
+    userInput.placeholder = "Tanya ZyyTech atau tekan mic...";
+    if(userInput.value.trim() !== '') sendMessage();
+}
+
+// ================= FITUR TEXT-TO-SPEECH =================
+function speakText(text, btnElement) {
+    if(speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+    let cleanText = text.replace(/[*#`_]/g, '').replace(/```[\s\S]*?```/g, 'blok kode program');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'id-ID';
+    utterance.onstart = () => { btnElement.classList.add('text-indigo-500'); };
+    utterance.onend = () => { btnElement.classList.remove('text-indigo-500'); };
+    speechSynthesis.speak(utterance);
+}
+
+// ================= FITUR EXPORT CHAT =================
+function exportChat() {
+    if (chatBox.children.length <= 1) { alert("Tidak ada obrolan untuk diunduh."); return; }
+    let chatText = "=== RIWAYAT OBROLAN ZYYTECH AI ===\n\n";
+    for(let i = 1; i < chatBox.children.length; i++) {
+        const node = chatBox.children[i];
+        if (node.id === 'loading-history' || node.id.startsWith('loading-')) continue;
+        const isUser = node.className.includes('justify-end');
+        const sender = isUser ? "KAMU" : "ZYYTECH AI";
+        const messageBox = node.querySelector('.break-words') || node.querySelector('.prose');
+        if(messageBox) { chatText += `[${sender}]:\n${messageBox.innerText}\n\n`; }
+    }
+    const blob = new Blob([chatText], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `ZyyTech_Chat_${new Date().toISOString().slice(0,10)}.txt`;
+    link.click();
+}
+
+// ================= FITUR PENCARIAN DI SIDEBAR =================
+async function searchSidebarSessions() {
+    const query = document.getElementById('search-history').value.trim();
+    const userEmail = localStorage.getItem('zyytech_user');
+    if(!userEmail) return;
+
+    const formData = new FormData();
+    formData.append('email', userEmail);
+    const url = query === '' ? '/get_sessions' : '/search_sessions';
+    if(query !== '') formData.append('query', query);
+
+    try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const data = await response.json();
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '<div class="text-[12px] font-medium text-gray-500 mb-2 px-3 pt-2">Hasil Pencarian</div>';
+        
+        if(data.status === 'success' && data.data.length > 0) {
+            data.data.forEach(session => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm text-gray-700 dark:text-gray-300 truncate mt-1';
+                btn.innerHTML = `<span class="material-symbols-outlined text-[18px] text-gray-500 shrink-0">chat_bubble</span><span class="truncate">${session.judul}</span>`;
+                btn.onclick = () => loadChatHistory(session.id);
+                historyList.appendChild(btn);
+            });
+        } else {
+            historyList.innerHTML += '<div class="px-3 py-2 text-sm text-gray-500 italic">Tidak ditemukan</div>';
+        }
+    } catch (e) { console.error("Search error", e); }
+}
+
+// ================= SISTEM LOGIN & INIT =================
+const authModal = document.getElementById('auth-modal');
+const authTitle = document.getElementById('auth-title');
+const authMode = document.getElementById('auth-mode');
+const authSubmitBtn = document.getElementById('auth-submit-btn');
+
+function openAuthModal() {
+    if(localStorage.getItem('zyytech_user')) {
+        if(confirm('Apakah Anda yakin ingin logout?')) { localStorage.removeItem('zyytech_user'); location.reload(); }
+        return;
+    }
+    authModal.classList.remove('hidden');
+    setTimeout(() => { authModal.classList.remove('opacity-0'); authModal.children[0].classList.remove('scale-95'); }, 10);
+}
+function closeAuthModal() {
+    authModal.classList.add('opacity-0'); authModal.children[0].classList.add('scale-95');
+    setTimeout(() => authModal.classList.add('hidden'), 300);
+}
+function switchAuthMode() {
+    if (authMode.value === 'login') {
+        authMode.value = 'register'; authTitle.innerText = 'Daftar ZyyTech'; authSubmitBtn.innerText = 'Buat Akun';
+        document.getElementById('auth-switch-text').innerText = 'Sudah punya akun?'; document.getElementById('auth-switch-btn').innerText = 'Masuk di sini';
+    } else {
+        authMode.value = 'login'; authTitle.innerText = 'Login ke ZyyTech'; authSubmitBtn.innerText = 'Masuk';
+        document.getElementById('auth-switch-text').innerText = 'Belum punya akun?'; document.getElementById('auth-switch-btn').innerText = 'Daftar sekarang';
+    }
+}
+async function handleAuth(event) {
+    event.preventDefault();
+    const email = document.getElementById('auth-email').value; const password = document.getElementById('auth-password').value; const mode = authMode.value; 
+    authSubmitBtn.innerText = 'Memproses...'; authSubmitBtn.disabled = true;
+    const formData = new FormData(); formData.append('email', email); formData.append('password', password);
+    try {
+        const response = await fetch(`/${mode}`, { method: 'POST', body: formData }); const data = await response.json();
+        if (data.status === 'success') {
+            if (mode === 'login') { localStorage.setItem('zyytech_user', data.email); closeAuthModal(); location.reload(); } 
+            else { alert(data.message); switchAuthMode(); }
+        } else { alert("Error: " + data.message); }
+    } catch (error) { alert("Gagal terhubung ke database."); } finally { authSubmitBtn.innerText = 'Masuk'; authSubmitBtn.disabled = false; }
+}
+
+window.onload = async () => {
+    const userEmail = localStorage.getItem('zyytech_user');
+    if(userEmail) {
+        const username = userEmail.split('@')[0];
+        document.getElementById('sidebar-user-text').innerText = 'Logout (' + username + ')'; document.getElementById('header-avatar').innerText = username.charAt(0).toUpperCase();
+        document.getElementById('welcome-title').innerHTML = `Halo, <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">${username}</span>`;
+        await searchSidebarSessions(); 
+    } else {
+        document.getElementById('sidebar-user-text').innerText = 'Login ke Akun'; document.getElementById('header-avatar').innerText = 'G';
+        document.getElementById('welcome-title').innerHTML = `Halo, Selamat Datang di <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">ZyyTech</span>`;
+    }
+    await createNewSession();
+};
+
+async function createNewSession() {
+    chatBox.innerHTML = ''; chatBox.appendChild(welcomeScreen); welcomeScreen.style.display = 'flex'; welcomeScreen.style.opacity = '1';
+    const userEmail = localStorage.getItem('zyytech_user') || 'GUEST';
+    const formData = new FormData(); formData.append('email', userEmail);
+    try { const response = await fetch('/create_session', { method: 'POST', body: formData }); const data = await response.json(); if(data.status === 'success') { currentSessionId = data.session_id; } } catch (e) { console.error(e); }
+    if(window.innerWidth < 768) { const sidebar = document.getElementById('sidebar'); if(!sidebar.classList.contains('-translate-x-full')) toggleSidebar(); }
+}
+
+async function loadChatHistory(sessionId) {
+    currentSessionId = sessionId; chatBox.innerHTML = ''; welcomeScreen.style.display = 'none';
+    if(window.innerWidth < 768) toggleSidebar(); 
+    const loadingId = 'loading-history'; renderPesanHTML('AI', 'Memuat riwayat...', false, loadingId);
+    const formData = new FormData(); formData.append('session_id', sessionId);
+    try {
+        const response = await fetch('/get_chat_history', { method: 'POST', body: formData }); const data = await response.json();
+        document.getElementById(loadingId).remove();
+        if(data.status === 'success') { data.data.forEach(chat => { renderPesanHTML(chat.pengirim, chat.teks, false); }); }
+    } catch (e) { document.getElementById(loadingId).remove(); alert("Gagal memuat riwayat percakapan."); }
+}
+
+function toggleTheme() { document.documentElement.classList.toggle('dark'); const isDark = document.documentElement.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').innerText = isDark ? 'light_mode' : 'dark_mode'; }
+if (localStorage.getItem('theme') === 'dark') toggleTheme();
+function toggleSidebar() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebar-overlay'); if (window.innerWidth >= 768) { sidebar.classList.toggle('md:hidden'); } else { const isClosed = sidebar.classList.contains('-translate-x-full'); if (isClosed) { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10); } else { sidebar.classList.add('-translate-x-full'); overlay.classList.add('opacity-0'); setTimeout(() => overlay.classList.add('hidden'), 300); } } }
+function handleFileSelect(event) { const file = event.target.files[0]; if (file) { fileTerpilih = file; document.getElementById('file-name-display').innerText = file.name; document.getElementById('file-preview-container').classList.remove('hidden'); } }
+function hapusFile() { fileTerpilih = null; document.getElementById('file-upload').value = ''; document.getElementById('file-preview-container').classList.add('hidden'); }
+function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + 'px'; }
+function handleEnter(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }
+function chatBaru() { createNewSession(); } // PERBAIKAN: Mengganti nama fungsi
+
+async function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message && !fileTerpilih) return; 
+    
+    if(!currentSessionId) { alert("Sistem sedang menyiapkan sesi, silakan tunggu sebentar."); return; }
+
+    let userEmail = localStorage.getItem('zyytech_user') || 'GUEST';
+
+    if(welcomeScreen.style.display !== 'none') {
+        welcomeScreen.style.opacity = '0';
+        setTimeout(() => { welcomeScreen.style.display = 'none'; }, 300);
+    }
+
+    let pesanUserTampil = message;
+    if (fileTerpilih) pesanUserTampil += `\n*[File: ${fileTerpilih.name}]*`;
+
+    renderPesanHTML('Kamu', pesanUserTampil, false);
+    userInput.value = ''; autoResize(userInput);
+    
+    const formData = new FormData();
+    formData.append('email', userEmail);
+    formData.append('session_id', currentSessionId);
+    formData.append('message', message);
+    formData.append('model', document.getElementById('model-selector').value);
+    if (fileTerpilih) formData.append('file', fileTerpilih);
+
+    hapusFile();
+
+    const loadingId = 'loading-' + Date.now();
+    renderPesanHTML('AI', 'Menganalisis...', false, loadingId);
+
+    try {
+        const response = await fetch('/send_message', { method: 'POST', body: formData });
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+        renderPesanHTML('AI', data.reply, true); 
+        
+        if(userEmail !== 'GUEST') {
+            const userText = document.getElementById('search-history').value;
+            if (userText === '') searchSidebarSessions();
+        }
+    } catch (error) {
+        document.getElementById(loadingId).remove();
+        renderPesanHTML('AI', 'Gagal terhubung ke server.', false);
+    }
+}
+
+function copyText(button, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `<span class="material-symbols-outlined text-[18px]">check</span>`;
+        button.classList.add('text-green-500');
+        setTimeout(() => { button.innerHTML = originalHTML; button.classList.remove('text-green-500'); }, 2000);
+    });
+}
+
+function renderPesanHTML(pengirim, teks, simpan = true, id = '') {
+    const wrap = document.createElement('div');
+    wrap.className = `mb-8 flex w-full max-w-3xl mx-auto gap-4 ${pengirim === 'Kamu' ? 'justify-end' : 'justify-start'}`;
+    if(id) wrap.id = id;
+
+    if (pengirim !== 'Kamu') {
+        const avatar = document.createElement('div');
+        avatar.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0 mt-1 shadow-sm';
+        avatar.innerHTML = `<span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>`;
+        wrap.appendChild(avatar);
+    }
+
+    const boxWrapper = document.createElement('div');
+    boxWrapper.className = `flex flex-col ${pengirim === 'Kamu' ? 'items-end' : 'items-start'} max-w-[90%] md:max-w-[85%]`;
+
+    const box = document.createElement('div');
+    
+    if (pengirim === 'Kamu') {
+        box.className = 'px-5 py-3 rounded-3xl bg-gemini-input dark:bg-gemini-darkInput text-gray-800 dark:text-gray-200 text-[15px] break-words whitespace-pre-wrap shadow-sm';
+        box.innerText = teks;
+    } else {
+        box.className = 'text-gray-800 dark:text-gray-200 text-[15px] w-full';
+        
+        if(id && id.startsWith('loading-')) {
+            box.innerHTML = `<div class="flex items-center gap-2 py-1 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined animate-spin text-[18px]">sync</span><span class="italic text-sm">${teks}</span></div>`;
+        } else {
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'prose dark:prose-invert max-w-none text-[15px] leading-relaxed';
+            box.appendChild(contentDiv);
+            
+            const actionDiv = document.createElement('div');
+            actionDiv.className = 'flex items-center gap-2 mt-2 opacity-0 transition-opacity duration-500'; 
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors';
+            copyBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">content_copy</span>`;
+            copyBtn.onclick = function() { copyText(this, teks); };
+            
+            const speakerBtn = document.createElement('button');
+            speakerBtn.className = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors';
+            speakerBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">volume_up</span>`;
+            speakerBtn.onclick = function() { speakText(teks, this, speakerBtn); };
+
+            actionDiv.appendChild(copyBtn);
+            actionDiv.appendChild(speakerBtn);
+
+            if (simpan === true) {
+                let i = 0;
+                const parsedHTML = marked.parse(teks); 
+                contentDiv.innerHTML = parsedHTML;
+                contentDiv.style.display = 'none'; 
+                
+                const typeWriterDiv = document.createElement('div');
+                typeWriterDiv.className = 'prose dark:prose-invert max-w-none text-[15px] leading-relaxed';
+                box.insertBefore(typeWriterDiv, contentDiv);
+                
+                const speed = 10; 
+                let currentText = '';
+
+                function typeWriter() {
+                    if (i < teks.length) {
+                        currentText += teks.charAt(i);
+                        typeWriterDiv.innerHTML = marked.parse(currentText);
+                        i++;
+                        setTimeout(typeWriter, speed);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    } else {
+                        typeWriterDiv.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+                        actionDiv.classList.remove('opacity-0');
+                    }
+                }
+                typeWriter();
+
+            } else {
+                contentDiv.innerHTML = marked.parse(teks);
+                contentDiv.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+                actionDiv.classList.remove('opacity-0');
+            }
+            
+            boxWrapper.appendChild(box);
+            boxWrapper.appendChild(actionDiv);
+        }
+    }
+
+    if(pengirim === 'Kamu' || (id && id.startsWith('loading-'))) {
+        boxWrapper.appendChild(box);
+    }
+    
+    wrap.appendChild(boxWrapper);
+    chatBox.appendChild(wrap);
+    setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
+}
+</script>
+
+</body>
+</html>
