@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,11 +81,11 @@ export async function POST(req: Request) {
     if (isGuest) {
       return NextResponse.json({
         status: 'success',
-        session_id: 'guest_' + Math.random().toString(36).substring(2, 15),
+        session_id: 'guest_' + randomUUID(),
       });
     }
 
-    const sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+    const sessionId = randomUUID();
     return NextResponse.json({ status: 'success', session_id: sessionId });
   } catch (error: any) {
     return NextResponse.json({ status: 'error', message: error.message }, { status: 500 });
