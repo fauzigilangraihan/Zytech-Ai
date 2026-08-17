@@ -61,10 +61,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 border border-zinc-200 dark:border-zinc-800 relative">
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-1 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors z-50 cursor-pointer"
+          aria-label="Tutup"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 pointer-events-none" />
         </button>
 
         <div className="text-center mb-6">
