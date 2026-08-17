@@ -5,8 +5,13 @@
 @tailwind utilities;
 
 @layer base {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
   body {
-    @apply bg-white dark:bg-zytech-darkbg text-gray-800 dark:text-gray-200 transition-colors duration-300 font-sans overflow-hidden;
+    @apply bg-white dark:bg-zytech-darkbg text-gray-800 dark:text-gray-200 transition-colors duration-300 font-sans;
   }
 }
 
