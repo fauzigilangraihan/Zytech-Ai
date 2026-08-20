@@ -321,7 +321,7 @@ function ChatInterface() {
   };
 
   return (
-    <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-zinc-50 dark:bg-[#09090b]">
+    <div className="fixed inset-0 flex overflow-hidden bg-zinc-50 dark:bg-[#09090b]">
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
