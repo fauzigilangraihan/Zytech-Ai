@@ -84,7 +84,7 @@ const PreBlock: React.FC<PreBlockProps> = ({ children }) => {
 };
 
 export const ChatBox: React.FC<ChatBoxProps> = ({ messages, isLoading, onRegenerate, onEditMessage }) => {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -92,7 +92,12 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, isLoading, onRegener
   const { showToast } = useToast();
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, isLoading]);
 
   const handleCopy = (text: string, index: number) => {
@@ -132,7 +137,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, isLoading, onRegener
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 pb-36 space-y-6">
+    <div ref={containerRef} className="flex-1 overflow-y-auto px-4 md:px-8 pt-6 pb-36 space-y-6">
       {messages.map((msg, index) => {
         const isUser = msg.sender === 'Kamu' || msg.sender === 'user';
         const isEditing = editingIndex === index;
@@ -294,7 +299,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, isLoading, onRegener
         </div>
       )}
 
-      <div ref={bottomRef} />
+
     </div>
   );
 };

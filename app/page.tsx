@@ -41,6 +41,17 @@ function ChatInterface() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Prevent mobile document/window scrolling (auto-scroll bugs)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Sync dark mode class
   useEffect(() => {
     if (isDarkMode) {
