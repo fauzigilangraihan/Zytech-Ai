@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     let email = 'GUEST';
     let sessionId = '';
     let messageText = '';
-    let model = 'gemini-1.5-flash';
+    let model = 'gemini-3.5-flash';
     let fileBase64 = '';
     let fileMimeType = '';
     let fileName = '';
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       email = (formData.get('email') as string) || 'GUEST';
       sessionId = (formData.get('session_id') as string) || '';
       messageText = (formData.get('message') as string) || '';
-      model = (formData.get('model') as string) || 'gemini-1.5-flash';
+      model = (formData.get('model') as string) || 'gemini-3.5-flash';
       isEdit = formData.get('is_edit') === 'true';
       messageId = (formData.get('message_id') as string) || '';
 
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       email = body.email || 'GUEST';
       sessionId = body.session_id || '';
       messageText = body.message || '';
-      model = body.model || 'gemini-1.5-flash';
+      model = body.model || 'gemini-3.5-flash';
       fileBase64 = body.file_base64 || '';
       fileMimeType = body.file_mime_type || '';
       fileName = body.file_name || '';

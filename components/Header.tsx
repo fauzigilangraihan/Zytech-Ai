@@ -45,9 +45,10 @@ export const Header: React.FC<HeaderProps> = ({
               onChange={(e) => onModelChange(e.target.value)}
               className="bg-transparent text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-100 cursor-pointer outline-none appearance-none pr-5.5 py-1 select-none hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
-              <option value="gemini-1.5-flash" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech Flash</option>
-              <option value="gemini-1.5-pro" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech Pro</option>
-              <option value="gemini-2.0-flash" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech 2.0</option>
+              <option value="gemini-3.5-flash" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech 3.5 Flash</option>
+              <option value="gemini-3.6-flash" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech 3.6 Flash</option>
+              <option value="gemini-flash-latest" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech Flash (Default)</option>
+              <option value="gemini-2.5-flash" className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">Zytech 2.5 Flash</option>
             </select>
             <ChevronDown className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 absolute right-0.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>

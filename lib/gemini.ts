@@ -24,7 +24,7 @@ export interface ChatContent {
 }
 
 export async function generateGeminiResponse({
-  model: modelName = 'gemini-1.5-flash',
+  model: modelName = 'gemini-3.5-flash',
   contents,
 }: {
   model?: string;
@@ -41,11 +41,10 @@ export async function generateGeminiResponse({
   // Model candidates to try in order
   const candidateModels = [
     modelName,
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-2.0-flash',
+    'gemini-3.5-flash',
+    'gemini-3.6-flash',
+    'gemini-flash-latest',
     'gemini-2.5-flash',
-    'gemini-1.5-pro-latest',
   ];
 
   const modelsToTry = Array.from(new Set(candidateModels));
