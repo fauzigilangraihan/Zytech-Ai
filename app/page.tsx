@@ -349,6 +349,7 @@ function ChatInterface() {
           userEmail={userEmail}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onLogout={handleLogout}
+          onNewChat={handleNewChat}
         />
 
         <main className="flex-1 flex flex-col relative overflow-hidden">

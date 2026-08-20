@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Send, Paperclip, Mic, X, Loader2 } from 'lucide-react';
+import { Send, Paperclip, Mic, X, Loader2, Plus } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
 interface ChatInputProps {
@@ -91,16 +91,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-zinc-50 dark:from-[#09090b] via-zinc-50/90 dark:via-[#09090b]/90 to-transparent z-20">
+    <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 bg-gradient-to-t from-zinc-50 dark:from-[#09090b] via-zinc-50/90 dark:via-[#09090b]/90 to-transparent z-20">
       <div className="max-w-4xl mx-auto w-full">
         <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-2.5 md:p-3 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-indigo-500/50"
+          className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-[28px] p-1.5 pl-2.5 pr-1.5 sm:pr-2 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-indigo-500/30 flex flex-col gap-1"
         >
           {/* File Attachment Pill */}
           {file && (
             <div className="flex items-center gap-2 mb-2 ml-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-semibold w-fit border border-indigo-500/20">
-              <Paperclip className="w-3.5 h-3.5" />
+              <Paperclip className="w-3.5 h-3.5 text-indigo-500" />
               <span className="max-w-[200px] truncate">{file.name}</span>
               <button
                 type="button"
@@ -120,26 +120,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
               className="hidden"
             />
 
+            {/* Left Add/Attachment Button */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
+              className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 transition-colors shrink-0"
               title="Lampirkan Gambar/File"
             >
-              <Paperclip className="w-5 h-5" />
+              <Plus className="w-5.5 h-5.5" />
             </button>
 
-            <button
-              type="button"
-              onClick={handleVoiceInput}
-              className={`p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${
-                isListening ? 'mic-active' : 'text-zinc-500 dark:text-zinc-400'
-              }`}
-              title="Input Suara"
-            >
-              <Mic className="w-5 h-5" />
-            </button>
-
+            {/* Main Textarea */}
             <textarea
               ref={textareaRef}
               value={message}
@@ -147,24 +138,36 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
               onKeyDown={handleKeyDown}
               placeholder="Ketik pesan untuk Zytech AI..."
               rows={1}
-              className="flex-1 bg-transparent text-sm text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 outline-none resize-none py-2.5 max-h-40 font-medium"
+              className="flex-1 bg-transparent text-sm sm:text-base text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none py-2 max-h-40 font-medium leading-relaxed"
             />
 
-            <button
-              type="submit"
-              disabled={(!message.trim() && !file) || isLoading}
-              className={`p-2.5 rounded-2xl transition-all ${
-                (message.trim() || file) && !isLoading
-                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/30 hover:scale-105'
-                  : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
-              }`}
-            >
+            {/* Right Dynamic Action Button */}
+            <div className="flex items-center shrink-0">
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <div className="p-2 rounded-full bg-indigo-600 text-white shadow-md shadow-indigo-600/30">
+                  <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                </div>
+              ) : (message.trim() || file) ? (
+                <button
+                  type="submit"
+                  className="p-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/30 hover:scale-105 transition-all"
+                  title="Kirim pesan"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
               ) : (
-                <Send className="w-4 h-4" />
+                <button
+                  type="button"
+                  onClick={handleVoiceInput}
+                  className={`p-2.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors ${
+                    isListening ? 'mic-active' : 'text-zinc-500 dark:text-zinc-400'
+                  }`}
+                  title="Input Suara"
+                >
+                  <Mic className="w-5.5 h-5.5" />
+                </button>
               )}
-            </button>
+            </div>
           </div>
         </form>
         <p className="text-[10px] text-center text-zinc-400 dark:text-zinc-500 mt-2 font-medium">
